@@ -1,0 +1,68 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "GolfLeagueWebsite", "..\GolfLeagueWebsite", "{2B8AAF73-263A-421E-BB38-FEC8206029EB}"
+	ProjectSection(WebsiteProperties) = preProject
+		SccProjectName = "SAK"
+		SccAuxPath = "SAK"
+		SccLocalPath = "SAK"
+		SccProvider = "SAK"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/GolfLeagueWebsite"
+		Debug.AspNetCompiler.PhysicalPath = "..\GolfLeagueWebsite\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\GolfLeagueWebsite\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/GolfLeagueWebsite"
+		Release.AspNetCompiler.PhysicalPath = "..\GolfLeagueWebsite\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\GolfLeagueWebsite\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "52329"
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GolfLeagueWebsiteTests", "..\GolfLeagueWebsiteTests\GolfLeagueWebsiteTests.csproj", "{235D2900-C600-4245-A383-7E7E4E7D55D5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{80DF5662-48F1-4830-A886-65D86AA12C2C}"
+	ProjectSection(SolutionItems) = preProject
+		GolfLeague.vsmdi = GolfLeague.vsmdi
+		Local.testsettings = Local.testsettings
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 2
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://fittingbay-pc:8080/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccWebProject1 = true
+		SccProjectUniqueName1 = .
+		SccLocalPath1 = .
+		SccProjectEnlistmentChoice1 = 2
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = GolfLeague.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2B8AAF73-263A-421E-BB38-FEC8206029EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B8AAF73-263A-421E-BB38-FEC8206029EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B8AAF73-263A-421E-BB38-FEC8206029EB}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B8AAF73-263A-421E-BB38-FEC8206029EB}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{235D2900-C600-4245-A383-7E7E4E7D55D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{235D2900-C600-4245-A383-7E7E4E7D55D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{235D2900-C600-4245-A383-7E7E4E7D55D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{235D2900-C600-4245-A383-7E7E4E7D55D5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

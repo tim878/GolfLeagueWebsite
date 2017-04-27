@@ -1,0 +1,231 @@
+﻿h3 {
+    color: black;
+}
+
+.panel-body {
+    padding-top: 6px;
+}
+
+.panel-default {
+    background-color: #f5f5f5;
+    margin-bottom: 4px;
+}
+
+.table {
+    margin-bottom: 5px;
+}
+
+.row {
+    margin-bottom: 5px;
+}
+
+
+/*****************
+Modal Overrides    
+*****************/
+.modal {
+    width: 90%;
+    max-height: 440px;
+    max-width: 1710px;
+    margin: auto auto auto auto;
+    background-color: #f5f5f5;
+    overflow-y: hidden;
+    float: none !important;
+}
+
+.modal.delete {
+    width: 30%;
+    max-height: 200px;
+    max-width: 800px;
+    margin: auto auto auto auto;
+    background-color: #f5f5f5;
+    float: none !important;
+}
+
+.modal.markcomplete {
+    width: 35%;
+    max-height: 200px;
+    max-width: 800px;
+    margin: auto auto auto auto;
+    background-color: #f5f5f5;
+    float: none !important;
+}
+
+.modal.bulkload_processing {
+    width: 35%;
+    max-height: 120px;
+    max-width: 800px;
+    margin: auto auto auto auto;
+    background-color: #ffffff;
+    float: none !important;
+}
+
+.label_processing {
+    margin: 10px 10px 10px 10px;
+    margin-top: 10px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: xx-large;
+    font-family: Arial;
+    color: darkslategray;
+}
+
+.label_processing_notes
+ {
+    margin: 10px 10px 10px 10px;
+    margin-top: 10px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 10px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: larger;
+    font-family: Arial;
+    font-style: italic;
+    font-weight: bold;
+    color: darkslategray;
+}
+
+
+/* Modal Dialog Boxes for Bulk Load usage */
+.modal.bulkload_success {
+    width: 35%;
+    max-height: 200px;
+    max-width: 40%;
+    margin: auto auto auto auto;
+    background-color: #ffffff;
+    float: none !important;
+}
+
+.modal.bulkload_success_dupes {
+    width: 35%;
+    max-height: 230px;
+    max-width: 40%;
+    margin: auto auto auto auto;
+    background-color: #ffffff;
+    float: none !important;
+}
+
+.modal.bulkload_aborted_error {
+    width: 45%;
+    max-height: 220px;
+    max-width: 40%;
+    margin: auto auto auto auto;
+    background-color: #ffffff;
+    float: none !important;
+}
+
+.modal.bulkload_aborted_rowerrors {
+    width: 45%;
+    max-height: 300px;
+    max-width: 40%;
+    margin: auto auto auto auto;
+    background-color: #ffffff;
+    float: none !important;
+}
+
+.bulkload_success_text {
+    color: darkslateblue;
+    font-size: x-large;
+    font-weight:bold;
+    margin-left: 50px;
+}
+
+.bulkload_error_text {
+    color: darkred;
+    font-size: x-large;
+    font-weight:bold;
+    margin-left: 30px;
+}
+
+.bulkload_errors_scrollbox {
+    width: 95%;
+    height: 115px;
+    color: darkred;
+    overflow: scroll;
+    white-space: nowrap;
+    font-size:medium;
+    font-weight:bold;
+    margin-left: 40px;
+    margin-top: 10px;
+}
+
+.bulkload_error_rowserror {
+    color: darkred;
+    font-size: x-large;
+    font-weight:bold;
+    margin-left: 10px;
+}
+
+
+
+.modal table.form-control {
+    height: 100%;
+    display: inline-table;
+    line-height: normal;
+}
+
+.modal .modal-footer {
+    padding-top: 10px;
+    padding-bottom: 0;
+    padding-right: 0;
+    margin-top: 0;
+}
+
+
+.modal .modal-body {
+    overflow: auto;
+    max-height: 310px;
+}
+
+.modal .col-md-12 {
+    float: none;
+}
+
+.modal .form-control.x-small {
+    width: 50px;
+}
+
+.modal .form-control.small {
+    width: 100px;
+}
+
+.modal .form-control.medium {
+    width: 115px;
+}
+
+.modal .form-control.large {
+    width: 200px;
+}
+
+.modal label {
+    white-space: nowrap;
+    cursor: inherit;
+}
+
+.modal .form-group {
+    font-size: 12px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.modal .pgr-text-danger {
+    margin-right: 10px;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.428571429;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+#prg_btnBulkLoadSelect {
+    margin-left:75px;
+}

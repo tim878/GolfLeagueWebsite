@@ -1,0 +1,109 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="Site.master.cs" Inherits="SiteMaster" %>
+
+<%--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">--%>
+<!DOCTYPE html>
+<html>
+    <head runat="server">
+        <asp:ContentPlaceHolder ID="HeadContent" runat="server"></asp:ContentPlaceHolder>
+        <title></title>
+        <link href="http://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel="stylesheet"/>
+        <link id="Link2" href="~/Styles/Site_alt1.css" rel="stylesheet" type="text/css" runat="server" />
+        <link id="Link1" href="~/Styles/jqbase.css" rel="stylesheet" type="text/css" runat="server" />
+
+    <%--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">--%>
+        
+        
+       <%-- <link href="/GolfLeagueWebsite/Styles/bootstrap.min.css" rel="stylesheet" type="text/css" />--%>
+    </head>
+
+    <body>
+        <form runat="server">
+            <div class="page border border-gradient">
+          <%--  <div class="page">--%>
+                <div class="header" >
+                    <div class="title" >   
+                        <img src="~/images/flag.png" height="60" width="60" style="float:left" runat="server">
+                        <table width="900px" style="float:left">
+                            <tr>
+                                <td align="left">
+                                    <asp:Label ID="Label1" Text="GolfLeagueInfo.com - Free Golf League Management" runat="server" Font-Bold="false" Font-Italic="true" Font-Size="Small" ForeColor=White />
+                                </td>                 
+                            </tr>
+                            <tr>
+                                <td align="left">
+                                    <asp:Label ID="GolfLeagueName" Text="" runat="server" Font-Bold=true Font-Size=X-Large ForeColor=White />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="loginDisplay">
+                        <asp:LoginView ID="HeadLoginView" runat="server" EnableViewState="false">
+                            <AnonymousTemplate>
+                                [ <a href="~/Account/Login.aspx" ID="HeadLoginStatus" runat="server">Log In</a> ]
+                            </AnonymousTemplate>
+                            <LoggedInTemplate>
+                                Welcome <span class="bold"><asp:LoginName ID="HeadLoginName" runat="server" /></span>!
+                                [ <asp:LoginStatus ID="HeadLoginStatus" runat="server" LogoutAction="Redirect" LogoutText="Log Out" LogoutPageUrl="~/"/> ]
+                            </LoggedInTemplate>
+                        </asp:LoginView>
+                    </div>
+                    <table width="1240px">
+                        <tr>
+                            <td>
+                                <nav id="main" class="constrain clearfix" style="margin:top:50px">
+		                            <div class="menu-top-container">
+	                                    <ul id="menu-top" class="    ">
+                                            <li class="menu-item"><a runat="server" href="~/LeagueHome.aspx">League Home</a></li>
+                                            <li class="menu-item"><a runat="server" href="~/Schedule.aspx">Schedule</a></li>
+                                            <li class="menu-item"><a runat="server" href="~/Announcements.aspx">Announcements</a></li>
+                                            <li class="menu-item"><a runat="server" href="~/Standings.aspx">Standings</a></li>
+                                            <li class="menu-item"><a runat="server" href="~/WeeklyResults.aspx">Weekly Results</a></li>
+                                            <li class="menu-item"><a runat="server" href="~/Stats.aspx">Stats</a></li>
+                                            <li class="menu-item"><a runat="server" href="~/account/ManageLeaguesNew.aspx">Manage</a></li>
+	                                    </ul>
+                                    </div>
+	                            </nav>
+                            </td>
+                          </tr>
+                    </table>
+
+                        <%--<nav class="navbar navbar-default">
+                          <div class="container-fluid">
+                            <div class="navbar-header">
+                            </div>
+                            <ul class="nav navbar-nav">
+                              <li><a href="/GolfLeagueWebsite/Schedule.aspx">Schedule</a></li>
+                              <li><a href="/GolfLeagueWebsite/Announcements.aspx">Announcements</a></li> 
+                              <li><a href="/GolfLeagueWebsite/Standings.aspx">Standings</a></li>
+                              <li><a href="/GolfLeagueWebsite/WeeklyResults.aspx">Results</a></li> 
+                              <li><a href="/GolfLeagueWebsite/Stats.aspx">Stats</a></li> 
+                              <li><a href="/GolfLeagueWebsite/account/ManageLeaguesNew.aspx">Manage</a></li>  
+                            </ul>
+                          </div>
+                        </nav>--%>
+                    <%--<div class="clear hideSkiplink">
+                        <asp:Menu ID="NavigationMenu" runat="server" CssClass="menu" EnableViewState="false" IncludeStyleBlock="false" Orientation="Horizontal">
+                            <staticselectedstyle backcolor="#bfcbd6" ForeColor="#465c71" borderstyle="Solid" bordercolor="Black" borderwidth="1"/>
+                            <Items>
+                                <asp:MenuItem NavigateUrl="~/Schedule.aspx" Text="Schedule" Value="Schedule"/>
+                                <asp:MenuItem NavigateUrl="~/Announcements.aspx" Text="Announcements" Value="Announcements" />
+                                <asp:MenuItem NavigateUrl="~/Standings.aspx" Text="Standings" Value="Standings"/>
+                                <asp:MenuItem NavigateUrl="~/WeeklyResults.aspx" Text="Results" Value="Results" />
+                                <asp:MenuItem NavigateUrl="~/Stats.aspx" Text="Stats" Value="Stats" />
+                                <asp:MenuItem NavigateUrl="account/ManageLeaguesNew.aspx" Text="Manage" Value="Manage" />
+                            </Items>
+                        </asp:Menu>
+                    </div>--%>
+                </div>
+                <div class="main">
+                    <asp:ContentPlaceHolder ID="MainContent" runat="server"/>
+                </div>
+            </div>
+        </form>
+        <script src="http://code.jquery.com/jquery-1.12.1.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+        <%--<script src="/GolfLeagueWebsite/Scripts/bootstrap.min.js"></script>--%>
+       <%--  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>--%>
+    </body>
+</html>
