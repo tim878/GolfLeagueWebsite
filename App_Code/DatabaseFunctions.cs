@@ -114,6 +114,22 @@ public static class DatabaseFunctions
     //private const string databaseConnectionString = "Server=ND375714\\MSSQL2012; Database=GolfLeague; Trusted_Connection=Yes";
 
 
+    public static Dictionary<int, string> GetLeagues()
+    {
+        Dictionary<int, string> retVal = new Dictionary<int, string>();
+
+        List<Row> result = queryForAll("Leagues");
+
+        foreach (Row row in result)
+        {
+            int LeagueID = (int)row.columnNameValuePairs["LeagueID"];
+            string LeagueName = (string)row.columnNameValuePairs["LeagueName"];
+            retVal.Add(LeagueID, LeagueName);
+        }
+        return retVal;
+    }
+
+
     public static void AddMatchup(int LeagueEventID, string team1ID, string team2ID)
     {
         Dictionary<string, string> row = new Dictionary<string, string>();

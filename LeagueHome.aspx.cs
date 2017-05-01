@@ -38,6 +38,10 @@ public partial class LeagueHome : System.Web.UI.Page
     private void AddScrollBarContent()
     {
         EventInfo lastEventWithScores = DatabaseFunctions.GetMostRecentEventWithScoresPosted(leagueID.ToString());
+        if(lastEventWithScores.EventID == 0)
+        {
+            return;
+        }
         Scoring.EventStats eventStats = Scoring.GetEventResults(leagueID, lastEventWithScores.EventID);
         Dictionary<int, Golfer> golfers = DatabaseFunctions.GetGolfersInfo(leagueID.ToString());
         Dictionary<int, string> teams = DatabaseFunctions.GetTeamNames(leagueID);
@@ -48,10 +52,10 @@ public partial class LeagueHome : System.Web.UI.Page
                     orderby pair.Value ascending
                     select pair;
 
-        ScrollLabel1.Text += "    Scores: ";
+        ScrollLabel1.Text += "|^|Scores: ";
         foreach (KeyValuePair<int, int> pair in items)
         {
-            ScrollLabel1.Text += golfers[pair.Key].firstName + " " +golfers[pair.Key].lastName + " - " + pair.Value.ToString() + "   "; 
+            ScrollLabel1.Text += golfers[pair.Key].firstName + " " +golfers[pair.Key].lastName + " - " + pair.Value.ToString() + "   |"; 
             //AddTableRowLeaderboard(Table_GrossScoreLeaderboard, DatabaseFunctions.GetGolferName(pair.Key), (decimal)pair.Value);
         }
 
@@ -59,10 +63,10 @@ public partial class LeagueHome : System.Web.UI.Page
                 orderby pair.Value ascending
                 select pair;
 
-        ScrollLabel1.Text += "    Net Scores:  ";
+        ScrollLabel1.Text += "|^|Net Scores:  ";
         foreach (KeyValuePair<int, int> pair in items)
         {
-            ScrollLabel1.Text += golfers[pair.Key].firstName + " " +golfers[pair.Key].lastName + " - " + pair.Value.ToString() + "    "; 
+            ScrollLabel1.Text += golfers[pair.Key].firstName + " " +golfers[pair.Key].lastName + " - " + pair.Value.ToString() + "   |"; 
             //AddTableRowLeaderboard(Table_NetScoreLeaderboard, DatabaseFunctions.GetGolferName(pair.Key), (decimal)pair.Value);
         }
 
@@ -70,11 +74,11 @@ public partial class LeagueHome : System.Web.UI.Page
                      orderby pair.Value descending
                      select pair;
 
-        ScrollLabel1.Text += "    Team Scores:   ";
+        ScrollLabel1.Text += "|^|Team Scores:   ";
 
         foreach (KeyValuePair<int, decimal> pair in items2)
         {
-            ScrollLabel1.Text += teams[pair.Key] + " " + pair.Value.ToString() + "    "; 
+            ScrollLabel1.Text += teams[pair.Key] + " " + pair.Value.ToString() + "   |"; 
             //AddTableRowLeaderboard(Table_TeamPts, teamNames[pair.Key], pair.Value);
         }
     }

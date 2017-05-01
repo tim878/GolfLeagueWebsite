@@ -333,5 +333,36 @@ div.accountInfo
     
 }
 
+.weekly_results_panel_head
+{
+    cursor: pointer;
+    cursor: hand;
+}
 
+.marquee-button-forward, .marquee-button-backward
+{
+    background-color:transparent;
+    color:White;
+    border:none;
+    width:30px;
+    cursor:hand;
+    cursor:pointer;   
+}
 
+.marquee-button-forward:hover, .marquee-button-backward:hover
+{
+    background-color: #bfcbd6;
+    color: #465c71;
+    text-decoration: none;
+}
+
+.marquee-button-forward
+{
+    float:right;
+    text-align:right;
+}
+
+.marquee-button-backward
+{
+    float:left;
+}

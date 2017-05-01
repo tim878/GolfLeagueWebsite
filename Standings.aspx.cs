@@ -43,7 +43,7 @@ public partial class Standings : System.Web.UI.Page
         foreach (KeyValuePair<int, EventInfo> eventPair in events.OrderBy(x => x.Value.Date))
         {
             Dictionary<int, int> handicapsForEvent = Scoring.GetHandicapsForEventFromHandicapByGolferIDDictionary(handicaps, eventPair.Key);
-            Dictionary<int, decimal> eventPoints = Scoring.GetTeamPointsForEvent(eventPair.Key, handicapsForEvent);
+            Dictionary<int, decimal> eventPoints = Scoring.GetTeamPointsForEvent(leagueID, eventPair.Key, handicapsForEvent);
             weekByWeekScores.Add(eventPair.Key, eventPoints);
             foreach(int teamID in eventPoints.Keys)
             {
@@ -91,7 +91,11 @@ public partial class Standings : System.Web.UI.Page
             series.ChartType = SeriesChartType.Line;
             series.XValueType = ChartValueType.String;
             series.BorderWidth = 6;
-            ChartWeeklyStandings.Series.Add(series);
+            try
+            {
+                ChartWeeklyStandings.Series.Add(series);
+            }
+            catch { }
         }
 
         int weekIndex = 1;

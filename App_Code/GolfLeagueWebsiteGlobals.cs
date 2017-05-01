@@ -2,12 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.UI.WebControls;
 
 /// <summary>
 /// Summary description for GolfLeagueWebsiteGlobals
 /// </summary>
 public static class GolfLeagueWebsiteGlobals
 {
+
+    public static void PopulateDropdownList(Dictionary<int, string> values, DropDownList dropdownList, int selectedValue)
+    {
+        foreach (int itemID in values.Keys)
+        {
+            ListItem newItem = new ListItem(values[itemID], itemID.ToString());
+            dropdownList.Items.Add(newItem);
+        }
+        dropdownList.SelectedValue = selectedValue.ToString();
+    }
+
+
     //public enum Tees {PRO, ADV, MENS, SENIOR, WOMENS};
     public static Dictionary<string, int> Tees = new Dictionary<string, int>() 
     {

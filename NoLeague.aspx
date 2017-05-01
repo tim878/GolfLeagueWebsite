@@ -6,12 +6,17 @@
      <table style="width: 900px" cellpadding="20">
         <tr>
             <td>
-                 <b style="font-size:12px;color:Black">No League with specified League ID registered.  Please Email League commissioner for correct URL for your league.(or try hitting back button) </b> <br />
-                 <b style="font-size:12px;color:Black"> If you would like to signup to manage a league start by creating a User Account and logging in.</b>
+                 <b style="font-size:12px;color:Black">We can't find your League.  Select your League from the Dropdown: </b>              
             </td>
-            
+            <td>
+                <asp:DropDownList ID="DropdownLeagues" runat="server" AutoPostBack="True" width="200px" OnSelectedIndexChanged="DropdownLeagueSelectedIndexChanged" /> 
+            </td>
         </tr>
-        
+        <tr>
+            <td colspan="2">
+                 <b style="font-size:12px;color:Black"> If you would like to signup to manage a league start by creating a User Account.</b>
+            </td>
+        </tr>
        
        
     </table>
