@@ -21,7 +21,7 @@ public partial class AddLeague : System.Web.UI.Page
         if (TextBox_LeagueName.Text != "")
         {
             DatabaseFunctions.addLeague(currentUserID, TextBox_LeagueName.Text);
-            Response.Redirect("ManageLeagues.aspx");
+            Response.Redirect("ManageLeaguesNew.aspx");
         }
     }
 }

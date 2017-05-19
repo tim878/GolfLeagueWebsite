@@ -16,7 +16,7 @@ public partial class _Default : System.Web.UI.Page
     {
         if (HttpContext.Current.User.Identity.IsAuthenticated)
         {
-            Response.Redirect("account/ManageLeagues.aspx");
+            Response.Redirect("account/ManageLeaguesNew.aspx");
             //currentUserID = Membership.GetUser().ProviderUserKey.ToString();
             ////try to look up the league for this user, if one is not found redirect to the Add League Page
             //try

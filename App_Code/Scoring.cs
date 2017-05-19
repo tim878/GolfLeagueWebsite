@@ -14,6 +14,8 @@ public static class Scoring
         public decimal averageValue;
     }
 
+   
+
     public struct MatchupResults
     {
         public List<byte> player1Scores;// = new List<byte>();
@@ -25,6 +27,8 @@ public static class Scoring
         public int netScorePlayer2;
         public decimal totalPtsPlayer1;
         public decimal totalPtsPlayer2;
+        public int Team1PlayerID;
+        public int Team2PlayerID; 
     }
 
     public struct EventStats
@@ -32,12 +36,17 @@ public static class Scoring
         public Dictionary<int, int> netScores;
         public Dictionary<int, int> grossScores;
         public Dictionary<int, decimal> teamPts;
+        public Dictionary<int, MatchupResults> matchupResultsA;
+        public Dictionary<int, MatchupResults> matchupResultsB;
+    
 
         public void initialize()
         {
             netScores = new Dictionary<int, int>();
             grossScores = new Dictionary<int, int>();
             teamPts = new Dictionary<int, decimal>();
+            matchupResultsA = new Dictionary<int, MatchupResults>();
+            matchupResultsB = new Dictionary<int, MatchupResults>();
         }
     }
 
@@ -551,7 +560,7 @@ public static class Scoring
     }
 
 
-    public static EventStats GetEventResults(int LeagueID, int LeagueEventID)
+    public static EventStats GetEventResults(int LeagueID, int LeagueEventID, Dictionary<int, int> handicaps)
     {
         EventStats retVal = new EventStats();
         retVal.initialize();
@@ -561,12 +570,18 @@ public static class Scoring
         Dictionary<int, List<byte>> scores = DatabaseFunctions.GetScores(LeagueEventID);
         CourseInfo courseInfo = DatabaseFunctions.GetCourseInfo(LeagueEventID);
         Dictionary<int, int> subs = DatabaseFunctions.GetSubs(LeagueEventID);
-        List<int> noShows = new List<int>(); //DatabaseFunctions.GetNoShows(LeagueEventID);
-        Dictionary<int, int> handicaps = DatabaseFunctions.GetHandicapOverrides(LeagueEventID);
+       
+        if (handicaps == null)
+        {
+            handicaps = Scoring.GetPlayerHandicapsForEvent(LeagueID, LeagueEventID, scores.Keys.ToList());
+        }
         int Team1PlayerA_ID, Team1PlayerB_ID, Team2PlayerA_ID, Team2PlayerB_ID;
         //Add No shows to Handicaps and scores
         scores.Add(0, Scoring.GetNoShowScores(courseInfo));
         handicaps.Add(0, 0);
+
+        Dictionary<string, string> LeagueSettings = DatabaseFunctions.GetLeagueSettings(LeagueID);
+        Dictionary<int, Team> teams = DatabaseFunctions.GetTeams(LeagueID);
 
         int index = 0;
         //foreach matchup
@@ -575,9 +590,19 @@ public static class Scoring
             Scoring.GetGolferIDs(team1ID, LeagueEventID ,subs, handicaps, scores, out Team1PlayerA_ID, out Team1PlayerB_ID);
             Scoring.GetGolferIDs(matchups[team1ID], LeagueEventID ,subs, handicaps, scores, out Team2PlayerA_ID, out Team2PlayerB_ID);     
             Scoring.MatchupResults results_A = Scoring.GetMatchupResults(scores[Team1PlayerA_ID], scores[Team2PlayerA_ID], handicaps[Team1PlayerA_ID], handicaps[Team2PlayerA_ID], courseInfo);
+            results_A.Team1PlayerID = Team1PlayerA_ID;
+            results_A.Team2PlayerID = Team2PlayerA_ID;
             Scoring.MatchupResults results_B = Scoring.GetMatchupResults(scores[Team1PlayerB_ID], scores[Team2PlayerB_ID], handicaps[Team1PlayerB_ID], handicaps[Team2PlayerB_ID], courseInfo);
+            results_B.Team1PlayerID = Team1PlayerB_ID;
+            results_B.Team2PlayerID = Team2PlayerB_ID;
             index++;
-            
+
+            if (LeagueSettings.ContainsKey("SubPtsLimit"))
+            {
+                AdjustResultsForSubs(results_A, WasPlayerSubbing(Team1PlayerA_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerA_ID, matchups[team1ID], subs, teams));
+                AdjustResultsForSubs(results_B, WasPlayerSubbing(Team1PlayerB_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerB_ID, matchups[team1ID], subs, teams));
+            }
+
             if (Team1PlayerA_ID != 0)
             {
                 retVal.grossScores.Add(Team1PlayerA_ID, results_A.grossScorePlayer1);
@@ -605,10 +630,16 @@ public static class Scoring
 
             retVal.teamPts.Add(team1ID, results_A.totalPtsPlayer1 + results_B.totalPtsPlayer1 + team1MedalPlayPts);
             retVal.teamPts.Add(matchups[team1ID], results_A.totalPtsPlayer2 + results_B.totalPtsPlayer2 + team2MedalPlayPts);
+            retVal.matchupResultsA.Add(team1ID, results_A);
+            retVal.matchupResultsB.Add(team1ID, results_B);
+            
+           
         }
         
         return retVal;
     }
+
+   
 
     public static void CalculateMedalPlay(out int Team1MedalPlayPts, out int Team2MedalPlayPts, MatchupResults resultsA, MatchupResults resultsB)
     {
@@ -642,64 +673,64 @@ public static class Scoring
         return retVal;
     }
 
-    public static Dictionary<int, decimal> GetTeamPointsForEvent(int leagueID, int EventID, Dictionary<int, int> handicaps)
-    {
-        Dictionary<int, decimal> retVal = new Dictionary<int, decimal>();
+    //public static Dictionary<int, decimal> GetTeamPointsForEvent(int leagueID, int EventID, Dictionary<int, int> handicaps)
+    //{
+    //    Dictionary<int, decimal> retVal = new Dictionary<int, decimal>();
 
-        Dictionary<int, int> matchups = DatabaseFunctions.GetMatchups(EventID);
-        //Dictionary<int, string> teams = DatabaseFunctions.GetTeamNames(leagueID, currentSeasonID);
-        Dictionary<int, List<byte>> scores = DatabaseFunctions.GetScores(EventID);
-        CourseInfo courseInfo = DatabaseFunctions.GetCourseInfo(EventID);
-        Dictionary<int, int> subs = DatabaseFunctions.GetSubs(EventID);
-        Dictionary<int, Team> teams = DatabaseFunctions.GetTeams(leagueID);
-        List<int> noShows = new List<int>(); //DatabaseFunctions. GetNoShows(EventID);
-        //Dictionary<int, int> handicaps = DatabaseFunctions.GetHandicapOverrides(EventID);
-        int Team1PlayerA_ID, Team1PlayerB_ID, Team2PlayerA_ID, Team2PlayerB_ID;
-        //Add No shows to Handicaps and scores
-        scores.Add(0, Scoring.GetNoShowScores(courseInfo));
-        handicaps.Add(0, 0);
+    //    Dictionary<int, int> matchups = DatabaseFunctions.GetMatchups(EventID);
+    //    //Dictionary<int, string> teams = DatabaseFunctions.GetTeamNames(leagueID, currentSeasonID);
+    //    Dictionary<int, List<byte>> scores = DatabaseFunctions.GetScores(EventID);
+    //    CourseInfo courseInfo = DatabaseFunctions.GetCourseInfo(EventID);
+    //    Dictionary<int, int> subs = DatabaseFunctions.GetSubs(EventID);
+    //    Dictionary<int, Team> teams = DatabaseFunctions.GetTeams(leagueID);
+    //    List<int> noShows = new List<int>(); //DatabaseFunctions. GetNoShows(EventID);
+    //    //Dictionary<int, int> handicaps = DatabaseFunctions.GetHandicapOverrides(EventID);
+    //    int Team1PlayerA_ID, Team1PlayerB_ID, Team2PlayerA_ID, Team2PlayerB_ID;
+    //    //Add No shows to Handicaps and scores
+    //    scores.Add(0, Scoring.GetNoShowScores(courseInfo));
+    //    handicaps.Add(0, 0);
 
-        Dictionary<string, string> LeagueSettings = DatabaseFunctions.GetLeagueSettings(leagueID);
-       
-        //foreach matchup
-        foreach (int team1ID in matchups.Keys)
-        {
-            decimal team1Score = 0 , team2Score = 0;
-            Scoring.GetGolferIDs(team1ID, EventID, subs, handicaps, scores, out Team1PlayerA_ID, out Team1PlayerB_ID);
-            Scoring.GetGolferIDs(matchups[team1ID], EventID, subs, handicaps, scores, out Team2PlayerA_ID, out Team2PlayerB_ID);
+    //    Dictionary<string, string> LeagueSettings = DatabaseFunctions.GetLeagueSettings(leagueID);
 
-            Scoring.MatchupResults results_A = Scoring.GetMatchupResults(scores[Team1PlayerA_ID], scores[Team2PlayerA_ID], handicaps[Team1PlayerA_ID], handicaps[Team2PlayerA_ID], courseInfo);
-            Scoring.MatchupResults results_B = Scoring.GetMatchupResults(scores[Team1PlayerB_ID], scores[Team2PlayerB_ID], handicaps[Team1PlayerB_ID], handicaps[Team2PlayerB_ID], courseInfo);
+    //    //foreach matchup
+    //    foreach (int team1ID in matchups.Keys)
+    //    {
+    //        decimal team1Score = 0, team2Score = 0;
+    //        Scoring.GetGolferIDs(team1ID, EventID, subs, handicaps, scores, out Team1PlayerA_ID, out Team1PlayerB_ID);
+    //        Scoring.GetGolferIDs(matchups[team1ID], EventID, subs, handicaps, scores, out Team2PlayerA_ID, out Team2PlayerB_ID);
 
-            if(LeagueSettings.ContainsKey("SubPtsLimit"))
-            {
-                AdjustResultsForSubs(results_A, WasPlayerSubbing(Team1PlayerA_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerA_ID, matchups[team1ID], subs, teams));
-                AdjustResultsForSubs(results_B, WasPlayerSubbing(Team1PlayerB_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerB_ID, matchups[team1ID], subs, teams));
-            }
+    //        Scoring.MatchupResults results_A = Scoring.GetMatchupResults(scores[Team1PlayerA_ID], scores[Team2PlayerA_ID], handicaps[Team1PlayerA_ID], handicaps[Team2PlayerA_ID], courseInfo);
+    //        Scoring.MatchupResults results_B = Scoring.GetMatchupResults(scores[Team1PlayerB_ID], scores[Team2PlayerB_ID], handicaps[Team1PlayerB_ID], handicaps[Team2PlayerB_ID], courseInfo);
 
-            team1Score += results_A.totalPtsPlayer1 + results_B.totalPtsPlayer1;
-            team2Score += results_A.totalPtsPlayer2 + results_B.totalPtsPlayer2;
-            
-            if ((results_A.netScorePlayer1 + results_B.netScorePlayer1) < (results_A.netScorePlayer2 + results_B.netScorePlayer2))
-            {
-                team1Score += 2;
-            }
-            else if ((results_A.netScorePlayer1 + results_B.netScorePlayer1) > (results_A.netScorePlayer2 + results_B.netScorePlayer2))
-            {
-                team2Score += 2;
-            }
-            else
-            {
-                team1Score += 1;
-                team2Score += 1;
-            }
-            
-            retVal.Add(team1ID, team1Score);
-            retVal.Add(matchups[team1ID], team2Score);
-        }
+    //        if (LeagueSettings.ContainsKey("SubPtsLimit"))
+    //        {
+    //            AdjustResultsForSubs(results_A, WasPlayerSubbing(Team1PlayerA_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerA_ID, matchups[team1ID], subs, teams));
+    //            AdjustResultsForSubs(results_B, WasPlayerSubbing(Team1PlayerB_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerB_ID, matchups[team1ID], subs, teams));
+    //        }
 
-        return retVal;
-    }
+    //        team1Score += results_A.totalPtsPlayer1 + results_B.totalPtsPlayer1;
+    //        team2Score += results_A.totalPtsPlayer2 + results_B.totalPtsPlayer2;
+
+    //        if ((results_A.netScorePlayer1 + results_B.netScorePlayer1) < (results_A.netScorePlayer2 + results_B.netScorePlayer2))
+    //        {
+    //            team1Score += 2;
+    //        }
+    //        else if ((results_A.netScorePlayer1 + results_B.netScorePlayer1) > (results_A.netScorePlayer2 + results_B.netScorePlayer2))
+    //        {
+    //            team2Score += 2;
+    //        }
+    //        else
+    //        {
+    //            team1Score += 1;
+    //            team2Score += 1;
+    //        }
+
+    //        retVal.Add(team1ID, team1Score);
+    //        retVal.Add(matchups[team1ID], team2Score);
+    //    }
+
+    //    return retVal;
+    //}
 
     private static bool WasPlayerSubbing(int playerID, int teamID, Dictionary<int, int> subs, Dictionary<int, Team> teams)
     {
@@ -802,12 +833,16 @@ public static class Scoring
     
         Dictionary<int, List<HandicapCalculationData>> handicapCalculationDataDictionary = DatabaseFunctions.GetHandicapCalculationData(LeagueID);
 
+        Dictionary<string, string> leagueSettings = DatabaseFunctions.GetLeagueSettings(LeagueID);
+
+        int escMaxOverPar = leagueSettings.ContainsKey("ESCMaxOverPar") ? int.Parse(leagueSettings["ESCMaxOverPar"]) : 3;
+
         foreach (int GolferID in handicapCalculationDataDictionary.Keys)
         {
             retVal.Add(GolferID, new Dictionary<int, int>());
             foreach (HandicapCalculationData handicapCalculationData in handicapCalculationDataDictionary[GolferID])
             {
-                CalculateHandicapDifferential(handicapCalculationData, courseInfos);
+                CalculateHandicapDifferential(handicapCalculationData, courseInfos, escMaxOverPar);
             }
 
             AggregateHandicapDifferentials(retVal[GolferID], handicapCalculationDataDictionary[GolferID]);
@@ -861,13 +896,13 @@ public static class Scoring
     }
 
 
-    private static void CalculateHandicapDifferential(HandicapCalculationData handicapCalculationData, Dictionary<int, CourseInfo> courseInfos)
+    private static void CalculateHandicapDifferential(HandicapCalculationData handicapCalculationData, Dictionary<int, CourseInfo> courseInfos, int EscMaxOverParScore)
     {
         //trim out any scores greater than triple bogeys
         int totalAdjustedScore = 0;
         for (int holeIndex = 0; holeIndex < 9; holeIndex++)
         {
-            byte MaxScore = (byte)(courseInfos[handicapCalculationData.CourseID].holeParRatings[holeIndex] + 3);
+            byte MaxScore = (byte)(courseInfos[handicapCalculationData.CourseID].holeParRatings[holeIndex] + EscMaxOverParScore);
             if (handicapCalculationData.scores[holeIndex] > MaxScore)
             {
                 totalAdjustedScore += MaxScore;
@@ -881,71 +916,96 @@ public static class Scoring
         handicapCalculationData.HandicapDifferential = totalAdjustedScore - courseInfos[handicapCalculationData.CourseID].courseHandicapRating;
     }
 
+    //public static void AdjustHandicapsForOverrides(int LeagueEventId, Dictionary<int, int> calculatedHandicaps)
+    //{
+    //    Dictionary<int, int> overrides = DatabaseFunctions.GetHandicapOverrides(LeagueEventId);
+    //    foreach (int GolferID in overrides.Keys)
+    //    {
+    //        calculatedHandicaps[GolferID] = overrides[GolferID];
+    //    }
+    //}
 
-    public static Dictionary<int, int> GetPlayerHandicapsForEvent(int LeagueEventID, List<int> GolferIDs)
+    public static Dictionary<int, int> GetPlayerHandicapsForEvent(int LeaugeID, int LeagueEventID, List<int> GolferIDs)
     {
-        Dictionary<int, int> retVal = DatabaseFunctions.GetHandicapOverrides(LeagueEventID);
+        Dictionary<int, int> retVal = new Dictionary<int, int>(); //DatabaseFunctions.GetHandicapOverrides(LeagueEventID);
+        var handicaps = GetHandicaps(LeaugeID);
+               
         foreach (int GolferID in GolferIDs)
         {
             if (!retVal.ContainsKey(GolferID))
             {
-                retVal.Add(GolferID, GetPlayerHandicap(GolferID, LeagueEventID));
+                retVal.Add(GolferID, handicaps[GolferID][LeagueEventID]);
             }
         }
         return retVal;
     }
 
-    public static int GetPlayerHandicap(int GolferID, int LeagueEventID)
-    {
-        //Query to get Rounds and Course Info
-        List<CourseInfo> courseInfos;
-        List<List<byte>> scoreList;
-        DatabaseFunctions.GetGolferScores(GolferID, out courseInfos, out scoreList, LeagueEventID);
-        int numberOfRoundsToUse = GolfLeagueWebsiteGlobals.GetPortableHandicapNumberOfRoundsToUse(scoreList.Count);
-        int numberOfRoundsToCheck = scoreList.Count;
-        if (numberOfRoundsToCheck > 20)
-        {
-            numberOfRoundsToCheck = 20;
-        }
+    //public static Dictionary<int, int> GetPlayerHandicapsForEvent(int LeaugeID, int LeagueEventID, List<int> GolferIDs)
+    //{
+    //    Dictionary<int, int> retVal = DatabaseFunctions.GetHandicapOverrides(LeagueEventID);
+    //    Dictionary<string, string> leagueSettings = DatabaseFunctions.GetLeagueSettings(LeagueID);
+    //    int escMaxOverPar = leagueSettings.ContainsKey("ESCMaxOverPar") ? int.Parse(leagueSettings["ESCMaxOverPar"]) : 3;
+    //    foreach (int GolferID in GolferIDs)
+    //    {
+    //        if (!retVal.ContainsKey(GolferID))
+    //        {
+    //            retVal.Add(GolferID, GetPlayerHandicap(GolferID, LeagueEventID, escMaxOverPar));
+    //        }
+    //    }
+    //    return retVal;
+    //}
 
-        List<double> handicapDifferentials = new List<double>();
-        for (int i = 0; i < numberOfRoundsToCheck; i++)
-        {
-            //trim out any scores greater than triple bogeys
-            int totalAdjustedScore = 0;
-            for (int holeIndex = 0; holeIndex < 9; holeIndex++)
-            {
-                if (scoreList[i][holeIndex] > courseInfos[i].holeParRatings[holeIndex] + 3)
-                {
-                    scoreList[i][holeIndex] = (byte)(courseInfos[i].holeParRatings[holeIndex] + 3);
-                }
-                totalAdjustedScore += scoreList[i][holeIndex];
-            }
-            //calculate differential
-            handicapDifferentials.Add(totalAdjustedScore - courseInfos[i].courseHandicapRating);
-        }
+    //public static int GetPlayerHandicap(int GolferID, int LeagueEventID, int EscMaxOverPar)
+    //{
+    //    //Query to get Rounds and Course Info
+    //    List<CourseInfo> courseInfos;
+    //    List<List<byte>> scoreList;
+    //    DatabaseFunctions.GetGolferScores(GolferID, out courseInfos, out scoreList, LeagueEventID);
+    //    int numberOfRoundsToUse = GolfLeagueWebsiteGlobals.GetPortableHandicapNumberOfRoundsToUse(scoreList.Count);
+    //    int numberOfRoundsToCheck = scoreList.Count;
+    //    if (numberOfRoundsToCheck > 20)
+    //    {
+    //        numberOfRoundsToCheck = 20;
+    //    }
 
-        handicapDifferentials.Sort();
+    //    List<double> handicapDifferentials = new List<double>();
+    //    for (int i = 0; i < numberOfRoundsToCheck; i++)
+    //    {
+    //        //trim out any scores greater than Par + EscMaxOverPar
+    //        int totalAdjustedScore = 0;
+    //        for (int holeIndex = 0; holeIndex < 9; holeIndex++)
+    //        {
+    //            if (scoreList[i][holeIndex] > courseInfos[i].holeParRatings[holeIndex] + EscMaxOverPar)
+    //            {
+    //                scoreList[i][holeIndex] = (byte)(courseInfos[i].holeParRatings[holeIndex] + EscMaxOverPar);
+    //            }
+    //            totalAdjustedScore += scoreList[i][holeIndex];
+    //        }
+    //        //calculate differential
+    //        handicapDifferentials.Add(totalAdjustedScore - courseInfos[i].courseHandicapRating);
+    //    }
+
+    //    handicapDifferentials.Sort();
 
 
-        double differentialTotal = 0;
-        for (int i = 0; i < numberOfRoundsToUse; i++)
-        {
-            differentialTotal += handicapDifferentials[i];
-        }
+    //    double differentialTotal = 0;
+    //    for (int i = 0; i < numberOfRoundsToUse; i++)
+    //    {
+    //        differentialTotal += handicapDifferentials[i];
+    //    }
 
-        if (numberOfRoundsToUse == 1)
-        {
-            differentialTotal = differentialTotal * .8;
-        }
-        else if (numberOfRoundsToUse == 2)
-        {
-            differentialTotal = differentialTotal * .9;
-        }
+    //    if (numberOfRoundsToUse == 1)
+    //    {
+    //        differentialTotal = differentialTotal * .8;
+    //    }
+    //    else if (numberOfRoundsToUse == 2)
+    //    {
+    //        differentialTotal = differentialTotal * .9;
+    //    }
         
-        return Convert.ToInt32(differentialTotal / numberOfRoundsToUse);
+    //    return Convert.ToInt32(differentialTotal / numberOfRoundsToUse);
 
-    }
+    //}
 
 
 
@@ -972,15 +1032,6 @@ public static class Scoring
         if (!scores.ContainsKey(golferID2))
         {
             golferID2 = 0;
-        }
-
-        if (!handicaps.ContainsKey(golferID1))
-        {
-            handicaps.Add(golferID1, GetPlayerHandicap(golferID1, LeagueEventID));
-        }
-        if (!handicaps.ContainsKey(golferID2))
-        {
-            handicaps.Add(golferID2, GetPlayerHandicap(golferID2, LeagueEventID));
         }
 
         if (golferID2 == 0 || handicaps[golferID1] < handicaps[golferID2])
@@ -1063,5 +1114,48 @@ public static class Scoring
         return retVal;
     }
 
-    
+    public static void ApplyHandicapsToScoresForHandicappedSkins(Dictionary<int, List<byte>> scores, Dictionary<int, int> handicaps, CourseInfo courseInfo)
+    {
+        List<int> HolesToAdjust = DatabaseFunctions.GetNonPar3HolesOrderedByHandicap(courseInfo.CourseID);
+        Dictionary<int, List<byte>> retVal = new Dictionary<int, List<byte>>();
+
+        foreach(int golferID in scores.Keys)
+        {
+            if (golferID != 0)
+            {
+                decimal golferAdjustedHandicap = handicaps[golferID];
+                golferAdjustedHandicap = golferAdjustedHandicap * (decimal).6;
+
+                foreach (int holeIndex in HolesToAdjust)
+                {
+                    if (golferAdjustedHandicap < 1)
+                    {
+                        break;
+                    }
+                    scores[golferID][holeIndex - 1]--;
+                    golferAdjustedHandicap--;
+                }
+            }    
+        }
+    }
+
+    //public static List<int> OrderHolesByHandicapAndRemovePar3s(CourseInfo courseInfo)
+    //{
+    //    List<int> retVal = new List<int>();
+    //    Dictionary<int, int> holeindexAndHandicaps = new Dictionary<int, int>();
+
+    //    for (int i = 0; i < 9; i++)
+    //    {
+    //        if(courseInfo.holeParRatings[i] > 3)
+    //        {
+    //            holeindexAndHandicaps.Add(i, courseInfo.holeHandicaps[i]);
+    //        }
+    //    }
+
+    //    holeindexAndHandicaps
+
+    //    return retVal;
+    //}
+
+
 }

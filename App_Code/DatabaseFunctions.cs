@@ -109,7 +109,7 @@ public static class DatabaseFunctions
     private const string USERNAME = "sa";
     private const string PASSWORD = "rossmere";
 
-    private const string databaseConnectionString = "Server=Tim-Server\\SQLSERVER2008R2; Database=GolfLeague; User Id=sa; password=rossmere";
+    private const string databaseConnectionString = "Server=Tim-Server\\SQLSERVER2008R2; Database=GolfLeague; User Id=sa; password=rossmere; Pooling=false";
 
     //private const string databaseConnectionString = "Server=ND375714\\MSSQL2012; Database=GolfLeague; Trusted_Connection=Yes";
 
@@ -731,6 +731,7 @@ public static class DatabaseFunctions
         if(LeagueID == 3)
         {
             retVal.Add("SubPtsLimit", "5");
+            retVal.Add("ESCMaxOverPar", "4");
         }
         return retVal;
     }
@@ -1477,6 +1478,30 @@ public static class DatabaseFunctions
 
         return retVal;
     }
+
+
+    public static List<int> GetNonPar3HolesOrderedByHandicap(int CourseID)
+    {
+        List<int> retVal = new List<int>();
+
+        string sql = "  Select HoleNumber, MensHandicap "
+                      + "From Holes "
+                      + "Where CourseID = " + CourseID 
+                      + " AND MensPar > 3 " 
+                      +" Order by MensHandicap asc";
+
+        List<Row> result = executeQuery(sql);
+        if (result != null && result.Count != 0)
+        {
+            foreach (Row row in result)
+            {
+                retVal.Add((int)row.columnNameValuePairs["HoleNumber"]);           
+            }
+        }
+
+        return retVal;
+    }
+
 
     //public static Dictionary<int, string> GetGolferNamesAndIDs(string LeagueID)
     //{

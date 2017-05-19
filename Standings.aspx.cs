@@ -43,7 +43,7 @@ public partial class Standings : System.Web.UI.Page
         foreach (KeyValuePair<int, EventInfo> eventPair in events.OrderBy(x => x.Value.Date))
         {
             Dictionary<int, int> handicapsForEvent = Scoring.GetHandicapsForEventFromHandicapByGolferIDDictionary(handicaps, eventPair.Key);
-            Dictionary<int, decimal> eventPoints = Scoring.GetTeamPointsForEvent(leagueID, eventPair.Key, handicapsForEvent);
+            Dictionary<int, decimal> eventPoints = Scoring.GetEventResults(leagueID, eventPair.Key, handicapsForEvent).teamPts;
             weekByWeekScores.Add(eventPair.Key, eventPoints);
             foreach(int teamID in eventPoints.Keys)
             {

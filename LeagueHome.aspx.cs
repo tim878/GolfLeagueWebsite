@@ -42,7 +42,7 @@ public partial class LeagueHome : System.Web.UI.Page
         {
             return;
         }
-        Scoring.EventStats eventStats = Scoring.GetEventResults(leagueID, lastEventWithScores.EventID);
+        Scoring.EventStats eventStats = Scoring.GetEventResults(leagueID, lastEventWithScores.EventID, null);
         Dictionary<int, Golfer> golfers = DatabaseFunctions.GetGolfersInfo(leagueID.ToString());
         Dictionary<int, string> teams = DatabaseFunctions.GetTeamNames(leagueID);
 

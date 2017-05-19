@@ -10,6 +10,7 @@ using AjaxControlToolkit;
 public partial class WeeklyResults : System.Web.UI.Page
 {
     private int leagueID;
+    private string SKINS_VIEW_HANDICAPPED = "HandicappedSkins";
     private string SKINS_VIEW = "Skins";
     private string WEEKLY_RESULTS_VIEW = "Team Results";
     private string WEEKLY_LEADERBOARD_VIEW = "Weekly Leaderboards";
@@ -41,6 +42,7 @@ public partial class WeeklyResults : System.Web.UI.Page
             ListItem initialItem = new ListItem("Select View to Continue", "0");
             DropDown_View.Items.Add(initialItem);
             DropDown_View.Items.Add(SKINS_VIEW);
+            DropDown_View.Items.Add(SKINS_VIEW_HANDICAPPED);
             DropDown_View.Items.Add(WEEKLY_LEADERBOARD_VIEW);
             DropDown_View.Items.Add(WEEKLY_RESULTS_VIEW);
 
@@ -135,7 +137,7 @@ public partial class WeeklyResults : System.Web.UI.Page
         public string Team2Name;
     }
 
-    
+
 
     protected void Dropdown_Season_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -185,6 +187,13 @@ public partial class WeeklyResults : System.Web.UI.Page
             Panel_Matchups.Visible = false;
             Panel_Skins.Visible = true;
             DisplaySkins();
+        }
+        else if (DropDown_View.Text == SKINS_VIEW_HANDICAPPED)
+        {
+            Panel_Leaderboards.Visible = false;
+            Panel_Matchups.Visible = false;
+            Panel_Skins.Visible = true;
+            DisplayHandicappedSkins();
         }
     }
 
@@ -249,16 +258,45 @@ public partial class WeeklyResults : System.Web.UI.Page
        
     }
 
-    
+    private void DisplayHandicappedSkins()
+    {
+        int selectedEventID = int.Parse(Dropdown_LeagueEvent.SelectedValue);
+        if (selectedEventID != 0)
+        {
+            Dictionary<int, List<byte>> scores = DatabaseFunctions.GetScores(selectedEventID);
+            Dictionary<int, int> handicaps = Scoring.GetPlayerHandicapsForEvent(leagueID, selectedEventID, scores.Keys.ToList());
 
-    
+                Table_SkinsResults.Width = 800;
+            Table_SkinsResults.Rows.Clear();
+            var courseInfo = DatabaseFunctions.GetCourseInfo(selectedEventID);
+            AddCourseInfoRowsSkinsTable(Table_SkinsResults, courseInfo);
+
+            Scoring.ApplyHandicapsToScoresForHandicappedSkins(scores, handicaps, courseInfo);
+            List<int> skins = Scoring.calculateSkins(scores);
+
+            //reset skins dropdown
+            DropdownList_SkinsPlayers.Items.Clear();
+            ListItem initialItem = new ListItem("Select Golfers(s) to Exclude From Skins", "0");
+            DropdownList_SkinsPlayers.Items.Add(initialItem);
+
+            foreach (int GolferID in scores.Keys)
+            {
+                ListItem item = new ListItem(DatabaseFunctions.GetGolferName(GolferID), GolferID.ToString());
+                DropdownList_SkinsPlayers.Items.Add(item);
+                AddTableRow(Table_SkinsResults, GolferID, scores[GolferID], skins);
+            }         
+        }
+
+    }
+
+
 
     private void DisplayWeeklyLeaderboard()
     {
         int selectedEventID = int.Parse(Dropdown_LeagueEvent.SelectedValue);
         if (selectedEventID != 0)
         {
-            Scoring.EventStats eventStats = Scoring.GetEventResults(leagueID, selectedEventID);
+            Scoring.EventStats eventStats = Scoring.GetEventResults(leagueID, selectedEventID, null);
             Dictionary<int, string> teamNames = DatabaseFunctions.GetTeamNames(leagueID);
 
             //Clear Tables and Add Title Rows
@@ -359,38 +397,59 @@ public partial class WeeklyResults : System.Web.UI.Page
         if (selectedEventID != 0)
         {
             ViewState["EventID"] = selectedEventID;
-            Dictionary<int, int> matchups = DatabaseFunctions.GetMatchups(selectedEventID);
             Dictionary<int, string> teamNames = DatabaseFunctions.GetTeamNames(leagueID);
+            Dictionary<int, int> matchups = DatabaseFunctions.GetMatchups(selectedEventID);
             Dictionary<int, List<byte>> scores = DatabaseFunctions.GetScores(selectedEventID);
+            var handicaps = Scoring.GetPlayerHandicapsForEvent(leagueID, selectedEventID, scores.Keys.ToList());
+            var results = Scoring.GetEventResults(leagueID, selectedEventID, handicaps);
             CourseInfo courseInfo = DatabaseFunctions.GetCourseInfo(selectedEventID);
-            Dictionary<int, int> subs = DatabaseFunctions.GetSubs(selectedEventID);
-            List<int> noShows = new List<int>(); //DatabaseFunctions.GetNoShows(selectedEventID);
-            Dictionary<int, int> handicaps = DatabaseFunctions.GetHandicapOverrides(selectedEventID);
-            int Team1PlayerA_ID, Team1PlayerB_ID, Team2PlayerA_ID, Team2PlayerB_ID;
-            //Add No shows to Handicaps and scores
-            scores.Add(0, Scoring.GetNoShowScores(courseInfo));
-            handicaps.Add(0, 0);
-
             int index = 0;
-            //foreach matchup
-            foreach (int team1ID in matchups.Keys)
+            foreach (int team1ID in results.matchupResultsA.Keys)
             {
-                Scoring.GetGolferIDs(team1ID, selectedEventID, subs, handicaps, scores, out Team1PlayerA_ID, out Team1PlayerB_ID);
-                Scoring.GetGolferIDs(matchups[team1ID],selectedEventID , subs, handicaps, scores, out Team2PlayerA_ID, out Team2PlayerB_ID);
-                GolferInfo golferInfo = GetGolferNames(Team1PlayerA_ID, Team2PlayerA_ID, Team1PlayerB_ID, Team2PlayerB_ID);
+                //build info for display
+                GolferInfo golferInfo = GetGolferNames(results.matchupResultsA[team1ID].Team1PlayerID, results.matchupResultsA[team1ID].Team2PlayerID, results.matchupResultsB[team1ID].Team1PlayerID, results.matchupResultsB[team1ID].Team2PlayerID);
                 golferInfo.Team1Name = teamNames[team1ID];
                 golferInfo.Team2Name = teamNames[matchups[team1ID]];
-                Scoring.MatchupResults results_A = Scoring.GetMatchupResults(scores[Team1PlayerA_ID], scores[Team2PlayerA_ID], handicaps[Team1PlayerA_ID], handicaps[Team2PlayerA_ID], courseInfo);
-                Scoring.MatchupResults results_B = Scoring.GetMatchupResults(scores[Team1PlayerB_ID], scores[Team2PlayerB_ID], handicaps[Team1PlayerB_ID], handicaps[Team2PlayerB_ID], courseInfo);
-                
-                //Add handicaps to golferNames
-                golferInfo.Aplayer1Hcp = handicaps[Team1PlayerA_ID];
-                golferInfo.Aplayer2Hcp = handicaps[Team2PlayerA_ID];
-                golferInfo.Bplayer1Hcp = handicaps[Team1PlayerB_ID];
-                golferInfo.Bplayer2Hcp = handicaps[Team2PlayerB_ID];
-                AddCollapsablePanel(index.ToString(), golferInfo, results_A, results_B, courseInfo);
+                golferInfo.Aplayer1Hcp = handicaps[results.matchupResultsA[team1ID].Team1PlayerID];
+                golferInfo.Aplayer2Hcp = handicaps[results.matchupResultsA[team1ID].Team2PlayerID];
+                golferInfo.Bplayer1Hcp = handicaps[results.matchupResultsB[team1ID].Team1PlayerID];
+                golferInfo.Bplayer2Hcp = handicaps[results.matchupResultsB[team1ID].Team2PlayerID];
+                AddCollapsablePanel(index.ToString(), golferInfo, results.matchupResultsA[team1ID], results.matchupResultsB[team1ID], courseInfo);
                 index++;
             }
+
+            //Dictionary<int, int> matchups = DatabaseFunctions.GetMatchups(selectedEventID);
+            //Dictionary<int, string> teamNames = DatabaseFunctions.GetTeamNames(leagueID);
+            //Dictionary<int, List<byte>> scores = DatabaseFunctions.GetScores(selectedEventID);
+            //CourseInfo courseInfo = DatabaseFunctions.GetCourseInfo(selectedEventID);
+            //Dictionary<int, int> subs = DatabaseFunctions.GetSubs(selectedEventID);
+            //List<int> noShows = new List<int>(); //DatabaseFunctions.GetNoShows(selectedEventID);
+            //Dictionary<int, int> handicaps = DatabaseFunctions.GetHandicapOverrides(selectedEventID);
+            //int Team1PlayerA_ID, Team1PlayerB_ID, Team2PlayerA_ID, Team2PlayerB_ID;
+            ////Add No shows to Handicaps and scores
+            //scores.Add(0, Scoring.GetNoShowScores(courseInfo));
+            //handicaps.Add(0, 0);
+
+            //int index = 0;
+            ////foreach matchup
+            //foreach (int team1ID in matchups.Keys)
+            //{
+            //    Scoring.GetGolferIDs(team1ID, selectedEventID, subs, handicaps, scores, out Team1PlayerA_ID, out Team1PlayerB_ID);
+            //    Scoring.GetGolferIDs(matchups[team1ID],selectedEventID , subs, handicaps, scores, out Team2PlayerA_ID, out Team2PlayerB_ID);
+            //    GolferInfo golferInfo = GetGolferNames(Team1PlayerA_ID, Team2PlayerA_ID, Team1PlayerB_ID, Team2PlayerB_ID);
+            //    golferInfo.Team1Name = teamNames[team1ID];
+            //    golferInfo.Team2Name = teamNames[matchups[team1ID]];
+            //    Scoring.MatchupResults results_A = Scoring.GetMatchupResults(scores[Team1PlayerA_ID], scores[Team2PlayerA_ID], handicaps[Team1PlayerA_ID], handicaps[Team2PlayerA_ID], courseInfo);
+            //    Scoring.MatchupResults results_B = Scoring.GetMatchupResults(scores[Team1PlayerB_ID], scores[Team2PlayerB_ID], handicaps[Team1PlayerB_ID], handicaps[Team2PlayerB_ID], courseInfo);
+                
+            //    //Add handicaps to golferNames
+            //    golferInfo.Aplayer1Hcp = handicaps[Team1PlayerA_ID];
+            //    golferInfo.Aplayer2Hcp = handicaps[Team2PlayerA_ID];
+            //    golferInfo.Bplayer1Hcp = handicaps[Team1PlayerB_ID];
+            //    golferInfo.Bplayer2Hcp = handicaps[Team2PlayerB_ID];
+            //    AddCollapsablePanel(index.ToString(), golferInfo, results_A, results_B, courseInfo);
+            //    index++;
+            //}
 
         }
     }

@@ -115,6 +115,13 @@ public partial class SiteMaster : System.Web.UI.MasterPage
         {
             GolfLeagueName.Text = "League: " + LeagueName;
         }
+        else
+        {
+            if (!Request.Url.GetLeftPart(UriPartial.Path).Contains("NoLeague"))
+            {
+                Response.Redirect("NoLeague.aspx", true);
+            }
+        }
     }
 
     protected void Page_Load(object sender, EventArgs e)
