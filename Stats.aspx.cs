@@ -67,7 +67,7 @@ public partial class Stats : System.Web.UI.Page
                 LeagueStats = (Scoring.LeagueStats)Session["LeagueStats"];
             }
 
-            UpdateContent(LeagueStats, CourseIDs);
+            UpdateContent(LeagueStats, CourseIDs, leagueID);
         }
         showCurrentlySelectedView();
         
@@ -151,6 +151,11 @@ public partial class Stats : System.Web.UI.Page
             NavigationMenu.FindItem("Par5").Selected = true; 
             Table_Par5Scoring.Style.Add("display", "block");
         }
+        else if (Session["SelectedStatView"] == "Handicaps")
+        {
+            NavigationMenu.FindItem("Handicaps").Selected = true;
+            Table_Handicaps.Style.Add("display", "block");
+        }
         else if (Session["SelectedStatView"] == "CourseStats")
         {
             IndividualStatsMenu.FindItem("CourseStats").Selected = true;
@@ -176,7 +181,7 @@ public partial class Stats : System.Web.UI.Page
 
     private void BuildHighestTotalTable(Table table, string title, Dictionary<int, int> data, Dictionary<int, int> numberOfRoundsPlayed)
     {
-        table.CellSpacing = 5;
+        table.CellSpacing = 20;
         TableRow tableTitleRow = new TableRow();
         TableCell titleCell = AddCell(tableTitleRow, title);
         titleCell.HorizontalAlign = HorizontalAlign.Center;
@@ -735,7 +740,7 @@ public partial class Stats : System.Web.UI.Page
 
 
 
-    private void UpdateContent(Scoring.LeagueStats LeagueStats, List<int> CourseIDs)
+    private void UpdateContent(Scoring.LeagueStats LeagueStats, List<int> CourseIDs, int LeagueID)
     {
        
         Table averageScoresByCourseTable = new Table();
@@ -790,6 +795,13 @@ public partial class Stats : System.Web.UI.Page
         BuildAvgScoreTable(Table_Par3Scoring, "Par 3 Scoring Averages", LeagueStats.ParThreeScoringAvg, 16, "Number of Par3's Played");
         BuildAvgScoreTable(Table_Par4Scoring, "Par 4 Scoring Averages", LeagueStats.ParFourScoringAvg, 16, "Number of Par4's Played");
         BuildAvgScoreTable(Table_Par5Scoring, "Par 5 Scoring Averages", LeagueStats.ParFiveScoringAvg, 16, "Number of Par5's Played");
+
+        try
+        {
+            int lastEventID = DatabaseFunctions.GetMostRecentEventWithScoresPosted(LeagueID.ToString()).EventID;
+            BuildHighestTotalTable(Table_Handicaps, "Handicaps", Scoring.GetHandicapsForEventFromHandicapByGolferIDDictionary(LeagueStats.handicaps, lastEventID), LeagueStats.NumberOfEventsPlayed);
+        }
+        catch { }
         //BuildHighestTotalTable(Table_Eagles, "Eagles", LeagueStats.Eagles, LeagueStats.NumberOfEventsPlayed);
 
 
@@ -827,7 +839,7 @@ public partial class Stats : System.Web.UI.Page
             List<int> CourseIDs = DatabaseFunctions.GetCourseIDs(leagueID);
             LeagueStats = Scoring.GetSeasonStats(leagueID, selectedSeason, CourseIDs);
             Session["LeagueStats"] = LeagueStats;
-            UpdateContent(LeagueStats, CourseIDs); 
+            UpdateContent(LeagueStats, CourseIDs, leagueID); 
             Session["StatsSeasonDropdownValue"] = Dropdown_Seasons.SelectedValue;
             Session["StatsPlayerDropdownValue"] = DropDown_PlayerSelect.SelectedValue;
         }
@@ -885,6 +897,10 @@ public partial class Stats : System.Web.UI.Page
         else if (e.Item.Value == "Par5")
         {
             Session["SelectedStatView"] = "Par5";
+        }
+        else if (e.Item.Value == "Handicaps")
+        {
+            Session["SelectedStatView"] = "Handicaps";
         }
         else if (e.Item.Value == "CourseStats")
         {

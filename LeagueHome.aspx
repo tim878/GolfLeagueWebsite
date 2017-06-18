@@ -4,6 +4,10 @@
         <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
         <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
         <script src="/GolfLeagueWebsite/Scripts/marquee.js"></script>
+
+       <!-- Latest compiled and minified CSS -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
         <script type='text/javascript'>
 
             var curMarqueeIndex = 0;
@@ -63,51 +67,90 @@
             <asp:Label runat="server" ClientIDMode="Static" ID="ScrollLabel1" Font-Bold="true" Font-Size="Larger" ForeColor="White" />
         </div>
     </div>
-    <table width="1100px">
+    <table width="1100px" >
         <tr>
-            <td>
-                <table>
-                    <tr>
-                        <td><asp:Label runat="server" ID="LabelNextEventTitle1">Next Event: Week 1</asp:Label></td>
-                        </tr>
-                        <tr>
-                         <td><asp:Label runat="server" ID="LabelNextEventTitle2">Date:4/3/2016    Course:Hiawatha-Front Nine</asp:Label></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                             <asp:GridView ID="grdNextEventMatchups" runat="server" 
-                                CssClass="Grid"                    
-                                AlternatingRowStyle-CssClass="alt"
-                                PagerStyle-CssClass="pgr"
-                                AutoGenerateColumns="false"
-                                EmptyDataText="No Matchups Found"
-                                >
-                                <HeaderStyle HorizontalAlign="Center" />
-                                <Columns>
-                                <asp:TemplateField >
-                                    <HeaderTemplate>
-                                        <asp:Label ID="lbTitle" runat="server"  Text="Matchups" />
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <%#Eval("Matchup")%>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                </Columns>
-                             </asp:GridView>
-                        </td>
-                    </tr> 
-                </table>
+            <td style="padding: 10px;">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Next Event</h3>
+                    </div>
+                    <div class="panel-body">
+                         <table>
+                                <tr>
+                                    <td><asp:Label Font-Bold="true" runat="server" ID="LabelNextEventTitle1">Next Event:</asp:Label></td>
+                                    </tr>
+                                    <tr>
+                                     <td><asp:Label Font-Bold="true" runat="server" ID="LabelNextEventTitle2">Date:</asp:Label></td>
+                                </tr>
+                                <tr>
+                                     <td><asp:Label Font-Bold="true" runat="server" ID="LabelNextEventTitle3">Course:</asp:Label></td>
+                                </tr>
+                                <tr>
+                                    <td> 
+                                        <ul id="MatchupsList" runat="server" class="list-group" >
+                                        </ul>
+                                    </td>
+                                   
+                                    <%--<td colspan="2">
+                                         <asp:GridView ID="grdNextEventMatchups" runat="server" 
+                                            CssClass="Grid"                    
+                                            AlternatingRowStyle-CssClass="alt"
+                                            PagerStyle-CssClass="pgr"
+                                            AutoGenerateColumns="false"
+                                            EmptyDataText="No Matchups Found"
+                                            >
+                                            <HeaderStyle HorizontalAlign="Center" />
+                                            <Columns>
+                                            <asp:TemplateField >
+                                                <HeaderTemplate>
+                                                    <asp:Label ID="lbTitle" runat="server"  Text="Matchups" />
+                                                </HeaderTemplate>
+                                                <ItemTemplate>
+                                                    <%#Eval("Matchup")%>
+                                                </ItemTemplate>
+                                            </asp:TemplateField>
+                                            </Columns>
+                                         </asp:GridView>
+                                    </td>--%>
+                                </tr> 
+                            </table>
+                    </div>
+              </div>
+               
             </td>
-            <td>
-                
+            
+            <td style="padding: 10px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Recent Announcements/Discussions</h3>
+                        </div>
+                        <div class="panel-body">
+                            Panel content
+                        </div>
+                    </div>
             </td>    
         </tr>
         <tr>
-            <td>
-                
+            <td style="padding: 10px;">
+                <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Random Stat</h3>
+                        </div>
+                        <div class="panel-body">
+                            Under Construction
+                        </div>
+                    </div>
             </td>
-            <td>
-                
+            <td style="padding: 10px;">
+                <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Standings</h3>
+                        </div>
+                        <div class="panel-body">
+                            Under Construction
+                        </div>
+                    </div>
             </td>
         </tr>
     </table>

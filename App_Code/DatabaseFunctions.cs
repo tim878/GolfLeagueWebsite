@@ -732,8 +732,23 @@ public static class DatabaseFunctions
         {
             retVal.Add("SubPtsLimit", "5");
             retVal.Add("ESCMaxOverPar", "4");
+            retVal.Add("MaxHandicap", "18");
+            retVal.Add("UseCurrentRoundForHandicap", "false");
         }
         return retVal;
+    }
+
+    public static int GetLeagueIDFromShortName(string shortName)
+    {
+        if(shortName == "Rios")
+        {
+            return 1;
+        }
+        else if (shortName.ToLower() == "progressive")
+        {
+            return 3;
+        }
+        return 0;
     }
 
 
@@ -1260,7 +1275,7 @@ public static class DatabaseFunctions
                 eventInfo.EventID = (int)row.columnNameValuePairs["LeagueEventID"];
                 eventInfo.EventName = (string)row.columnNameValuePairs["EventName"];
                 eventInfo.SeasonName = (string)row.columnNameValuePairs["SeasonName"];
-                eventInfo.Date = ((DateTime)row.columnNameValuePairs["Date"]).ToString();
+                eventInfo.Date = ((DateTime)row.columnNameValuePairs["Date"]).ToShortDateString();
 
             }
         }
@@ -1290,7 +1305,7 @@ public static class DatabaseFunctions
                 eventInfo.EventID = (int)row.columnNameValuePairs["LeagueEventID"];
                 eventInfo.EventName = (string)row.columnNameValuePairs["EventName"];
                 eventInfo.SeasonName = (string)row.columnNameValuePairs["SeasonName"];
-                eventInfo.Date = ((DateTime)row.columnNameValuePairs["Date"]).ToString();
+                eventInfo.Date = ((DateTime)row.columnNameValuePairs["Date"]).ToShortDateString();
                
             }
         }
@@ -1376,7 +1391,7 @@ public static class DatabaseFunctions
             EventInfo newEvent = new EventInfo();
             if (dbEvent.columnNameValuePairs["Date"] != DBNull.Value)
             {
-                newEvent.Date = ((DateTime)dbEvent.columnNameValuePairs["Date"]).ToString();
+                newEvent.Date = ((DateTime)dbEvent.columnNameValuePairs["Date"]).ToShortDateString();
             }
             else
             {

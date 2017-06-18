@@ -32,7 +32,10 @@ public partial class Standings : System.Web.UI.Page
         Dictionary<int, decimal> teamTotalScores = new Dictionary<int, decimal>();
         Dictionary<int, Dictionary<int, decimal>> weekByWeekScores = new Dictionary<int, Dictionary<int, decimal>>();
 
-        Dictionary<int, Dictionary<int, int>> handicaps = Scoring.GetHandicaps(leagueID);
+        var settings = DatabaseFunctions.GetLeagueSettings(leagueID);
+        bool useCurrentRound = settings.ContainsKey("UseCurrentRoundForHandicap") ? bool.Parse(settings["UseCurrentRoundForHandicap"]) : true;
+
+        Dictionary<int, Dictionary<int, int>> handicaps = Scoring.GetHandicaps(leagueID, useCurrentRound);
 
         ChartWeeklyStandings.ImageStorageMode = ImageStorageMode.UseImageLocation;
         

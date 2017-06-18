@@ -15,5 +15,11 @@ public partial class Announcements : System.Web.UI.Page
     {
         leagueID = (int)((SiteMaster)this.Master).LeagueID;
         currentSeasonID = DatabaseFunctions.GetCurrentSeasonID(leagueID.ToString());
+        if(leagueID == 3)
+        {
+            constuctionLabel.Visible = false;
+            RulesHyperlink.Visible = true;
+            RulesHyperlink.NavigateUrl = "http://www.golfleagueinfo.com/2017ProgCOSLeagueRules.htm";
+        }
     }
 }

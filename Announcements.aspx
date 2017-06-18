@@ -6,7 +6,8 @@
     <table>
         <tr>
             <td>
-                <asp:Label ID="temp" runat="server" Text=" Page Under Construction. " Font-Size="XX-Large" Font-Bold="true"/>
+                <asp:Label ID="constuctionLabel" runat="server" Text=" Page Under Construction. " Font-Size="XX-Large" Font-Bold="true" Visible="true"/>
+                <asp:HyperLink ID="RulesHyperlink" runat="server" Visible="false" >League Rules</asp:HyperLink>
             </td>
              
         </tr>

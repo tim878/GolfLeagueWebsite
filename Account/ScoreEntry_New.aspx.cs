@@ -134,19 +134,23 @@ public partial class ScoreEntry_New : System.Web.UI.Page
 
         foreach (int golferID in golferIDs)
         {
-            string sub = subs.ContainsKey(golferID) ? golferNames[subs[golferID]] : ""; 
-            List<byte> scoresToUse;
-          
-            if(sub == "")
+            try
             {
-                scoresToUse = scores.ContainsKey(golferID) ? scores[golferID] : null;
+                string sub = subs.ContainsKey(golferID) ? golferNames[subs[golferID]] : "";
+                List<byte> scoresToUse;
+
+                if (sub == "")
+                {
+                    scoresToUse = scores.ContainsKey(golferID) ? scores[golferID] : null;
+                }
+                else
+                {
+                    scoresToUse = scores[subs[golferID]];
+                }
+                ScoresView scoresView = new ScoresView(golferNames[golferID], sub, scoresToUse, golferID);
+                dataToBind.Add(scoresView);
             }
-            else
-            {
-                scoresToUse = scores[subs[golferID]];
-            }
-            ScoresView scoresView = new ScoresView(golferNames[golferID], sub, scoresToUse, golferID);
-            dataToBind.Add(scoresView);
+            catch { }
         }
 
         grdScores.DataSource = dataToBind;
@@ -169,7 +173,10 @@ public partial class ScoreEntry_New : System.Web.UI.Page
             {
                 DatabaseFunctions.DeleteSub(selectedEventID, subs[scheduledGolferID]);
             }
-            DatabaseFunctions.DeleteScore(selectedEventID, golferID);
+            else
+            {
+                DatabaseFunctions.DeleteScore(selectedEventID, golferID);
+            }
 
             //Update Sub
             if (DropdownSub.SelectedValue != "0")
@@ -180,6 +187,13 @@ public partial class ScoreEntry_New : System.Web.UI.Page
             }
             //Update sub or originally scheduled golfers score
             DatabaseFunctions.AddScore(golferID, selectedEventID, scores);
+
+            //Add handicap override if necessary
+            if(TextBoxHandicapOverride.Text.Length > 0)
+            {
+                AddHandicapOverrides(golferID, selectedEventID, TextBoxHandicapOverride.Text);
+            }
+
             BindDataToGridview(selectedEventID);
         }
         else
@@ -190,12 +204,12 @@ public partial class ScoreEntry_New : System.Web.UI.Page
         
     }    
 
-    private void AddHandicapOverrides(string player1Override)
+    private void AddHandicapOverrides(int golferID, int EventID, string handicap)
     {
         int handicapOverride;
-        if (int.TryParse(player1Override, out handicapOverride))
+        if (int.TryParse(handicap, out handicapOverride))
         {
-            DatabaseFunctions.InsertHandicapOverride((int)ViewState["Player1ID"], (int)ViewState["EventID"], handicapOverride);
+            DatabaseFunctions.InsertHandicapOverride(golferID, EventID, handicapOverride);
         }
        
     }
@@ -263,8 +277,8 @@ public partial class ScoreEntry_New : System.Web.UI.Page
             golferID = scheduledGolferID;
             DropdownSub.SelectedValue = "0";
         }
- 
-        AddAllPlayersToDropdown(DropdownSub);
+
+        AddSubsToDropdown(DropdownSub, selectedEventID);
         lbGolferToEdit.Text = eventsAndGolfers.golfers[scheduledGolferID];
         if (scores.ContainsKey(golferID))
         {
@@ -289,9 +303,24 @@ public partial class ScoreEntry_New : System.Web.UI.Page
         return retVal;
     }
 
-    private void AddAllPlayersToDropdown(DropDownList dropdown)
+    private void AddSubsToDropdown(DropDownList dropdown, int selectedEventID)
     {
         Dictionary<int, string> allGolfers = DatabaseFunctions.GetGolferNamesAndIDs(leagueID.ToString());//get all players
+        List<int> scheduledGolfers = DatabaseFunctions.GetGolfersByEvent(selectedEventID);
+        Dictionary<int, int> subs = DatabaseFunctions.GetSubs(selectedEventID);
+        foreach (int golferID in scheduledGolfers)
+        {
+            if (!subs.ContainsKey(golferID))
+            {
+                allGolfers.Remove(golferID);
+            }
+        }
+        foreach (int golferID in subs.Values)
+        {
+            allGolfers.Remove(golferID);
+        }
+       
+
         ListItem selectionItem = new ListItem("None", "0");
         dropdown.Items.Add(selectionItem);
         foreach (int golferID in allGolfers.Keys)

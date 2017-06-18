@@ -78,6 +78,7 @@
                                         <asp:MenuItem Text="Par 3 Scoring"              Value="Par3"     />
                                         <asp:MenuItem Text="Par 4 Scoring"              Value="Par4"    />
                                         <asp:MenuItem Text="Par 5 Scoring"              Value="Par5"     />
+                                        <asp:MenuItem Text="Handicaps"                 Value="Handicaps"     />
                                         <asp:MenuItem Text="Individual Hole Stats"      Value="IndividualHoles"      />
                                     </Items>
                                  </asp:Menu>
@@ -117,21 +118,22 @@
           
            
                    <%-- League Stats--%>
-                   <asp:table ID="Table_AverageScores"                  runat="server" style="display:none"/>
-                   <asp:table ID="Table_LowestGrossSingleRoundScores"   runat="server" style="display:none"/>
-                   <asp:table ID="Table_LowestNetSingleRoundScores"     runat="server" style="display:none"/>
-                   <asp:Panel ID="Panel_AverageScoresByCourse"          runat="server" style="display:none"/>
-                   <asp:table ID="Table_PtsScored"                      runat="server" style="display:none"/>
-                   <asp:table ID="Table_Skins"                          runat="server" style="display:none"/>
-                   <asp:table ID="Table_Birdies"                        runat="server" style="display:none"/>
-                   <asp:table ID="Table_Pars"                           runat="server" style="display:none"/>
-                   <asp:table ID="Table_Bogeys"                         runat="server" style="display:none"/>
-                   <asp:table ID="Table_DoubleBogeys"                   runat="server" style="display:none"/>
-                   <asp:table ID="Table_Eagles"                         runat="server" style="display:none"/>
-                   <asp:table ID="Table_Par3Scoring"                    runat="server" style="display:none"/>
-                   <asp:table ID="Table_Par4Scoring"                    runat="server" style="display:none"/>
-                   <asp:table ID="Table_Par5Scoring"                    runat="server" style="display:none"/>
-                   <asp:panel ID="Panel_HoleScores"                     runat="server" style="display:none"/>
+                   <asp:table ID="Table_AverageScores"                  runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_LowestGrossSingleRoundScores"   runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_LowestNetSingleRoundScores"     runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:Panel ID="Panel_AverageScoresByCourse"          runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_PtsScored"                      runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Skins"                          runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Birdies"                        runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Pars"                           runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Bogeys"                         runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_DoubleBogeys"                   runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Eagles"                         runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Par3Scoring"                    runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Par4Scoring"                    runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Par5Scoring"                    runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:table ID="Table_Handicaps"                      runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
+                   <asp:panel ID="Panel_HoleScores"                     runat="server" style="display:none;border-spacing:5px !important;border-collapse: separate !important;"/>
                    <%--Win loss records
                    Most points on individual basis --%>
 

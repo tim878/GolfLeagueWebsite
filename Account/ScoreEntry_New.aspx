@@ -32,6 +32,7 @@
             <td><asp:Label ID="lbSubHeader" runat="server" Font-Bold="true" Text="Sub"/></td>
             <td><asp:Label ID="lbScores" runat="server" Font-Bold="true" Text="Enter Scores Seperated by Spaces or Commas"/></td>
             <td></td>
+            <td><asp:Label ID="lbHandicapOverride" runat="server" Font-Bold="true" Text="Hndcp Override" Width="100px"/></td>
         </tr>    
         <tr>
             <td><asp:Label ID="lbGolferToEdit" runat="server"  Text=""/> </td>
@@ -41,6 +42,9 @@
             <td>
                 <asp:Button ID="btnClose" runat="server" Text="Close" /> 
                 <asp:Button ID="btnSave" runat="server" Text="Save" OnCommand="Save" />
+            </td>
+            <td>
+                 <asp:TextBox ID="TextBoxHandicapOverride" runat="server" Width="100" />
             </td>
         </tr>
    </table>

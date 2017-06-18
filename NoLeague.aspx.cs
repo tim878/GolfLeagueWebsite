@@ -19,6 +19,8 @@ public partial class NoLeague : System.Web.UI.Page
     protected void DropdownLeagueSelectedIndexChanged(object sender, EventArgs e)
     {
         string selectedLeagueID = DropdownLeagues.SelectedValue;
-        Response.Redirect("LeagueHome.aspx?LeagueID=" + selectedLeagueID, true);
+        Session["LeagueID"] = int.Parse(selectedLeagueID);
+        Session["LeagueName"] = DropdownLeagues.SelectedItem.Text;
+        Response.Redirect("LeagueHome.aspx", true);
     }
 }
