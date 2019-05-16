@@ -31,7 +31,8 @@ public partial class SiteMaster : System.Web.UI.MasterPage
         if (Request.QueryString["LeagueID"] != null)
         {
             LeagueName = DatabaseFunctions.ValidateLeagueID(Request.QueryString["LeagueID"]);
-            Session["LeagueID"] = LeagueID;
+            LeagueID = int.Parse(Request.QueryString["LeagueID"]);
+            Session["LeagueID"] =  LeagueID;
             Session["LeagueName"] = LeagueName;
             return;
         }

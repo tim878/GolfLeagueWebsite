@@ -598,10 +598,19 @@ public static class Scoring
         scores.Add(0, noShowScores);
         scores.Add(-1, noShowScores);
         scores.Add(-2, noShowScores);
-        handicaps.Add(0, 0);//no show
-        handicaps.Add(-1, 9);//blind1
-        handicaps.Add(-2, 9);//blind2
 
+        if (LeagueSettings.ContainsKey("NewScoring"))
+        {
+            handicaps.Add(0, 7);//no show
+            handicaps.Add(-1, 7);//blind1
+            handicaps.Add(-2, 7);//blind2
+        }
+        else
+        {
+            handicaps.Add(0, 0);//no show
+            handicaps.Add(-1, 9);//blind1
+            handicaps.Add(-2, 9);//blind2
+        }
        
         Dictionary<int, Team> teams = DatabaseFunctions.GetTeams(LeagueID);
 
@@ -623,6 +632,12 @@ public static class Scoring
             {
                 results_A = AdjustResultsForSubs(results_A, WasPlayerSubbing(Team1PlayerA_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerA_ID, matchups[team1ID], subs, teams));
                 results_B = AdjustResultsForSubs(results_B, WasPlayerSubbing(Team1PlayerB_ID, team1ID, subs, teams), WasPlayerSubbing(Team2PlayerB_ID, matchups[team1ID], subs, teams));
+            }
+
+            if (LeagueSettings.ContainsKey("NewScoring"))
+            {
+                results_A = AdjustResultsForNoShows(results_A, Team1PlayerA_ID, Team2PlayerA_ID);
+                results_B = AdjustResultsForNoShows(results_B, Team1PlayerB_ID, Team2PlayerB_ID);
             }
 
             if (Team1PlayerA_ID > 0)
@@ -648,7 +663,7 @@ public static class Scoring
             }
 
             int team1MedalPlayPts, team2MedalPlayPts;
-            CalculateMedalPlay(out team1MedalPlayPts,out team2MedalPlayPts, results_A, results_B);
+            CalculateMedalPlay(out team1MedalPlayPts,out team2MedalPlayPts, results_A, results_B, LeagueSettings);
 
             retVal.teamPts.Add(team1ID, results_A.totalPtsPlayer1 + results_B.totalPtsPlayer1 + team1MedalPlayPts);
             retVal.teamPts.Add(matchups[team1ID], results_A.totalPtsPlayer2 + results_B.totalPtsPlayer2 + team2MedalPlayPts);
@@ -663,11 +678,31 @@ public static class Scoring
 
    
 
-    public static void CalculateMedalPlay(out int Team1MedalPlayPts, out int Team2MedalPlayPts, MatchupResults resultsA, MatchupResults resultsB)
+    public static void CalculateMedalPlay(out int Team1MedalPlayPts, out int Team2MedalPlayPts, MatchupResults resultsA, MatchupResults resultsB, Dictionary<string, string> LeagueSettings)
     {
         Team1MedalPlayPts = 0;
         Team2MedalPlayPts = 0;
-        if ((resultsA.netScorePlayer1 + resultsB.netScorePlayer1) < (resultsA.netScorePlayer2 + resultsB.netScorePlayer2))
+
+        var Team1NoShow = false; 
+        var Team2NoShow = false; 
+
+        if(LeagueSettings.ContainsKey("NewScoring"))
+        {
+            Team1NoShow = resultsA.Team1PlayerID == 0 && resultsB.Team1PlayerID == 0;
+            Team2NoShow = resultsA.Team2PlayerID == 0 && resultsB.Team2PlayerID == 0;
+        }
+
+
+        if(Team1NoShow && !Team2NoShow)
+        {
+            Team2MedalPlayPts = 2;
+        }
+        else if(!Team1NoShow && Team2NoShow)
+        {
+            Team1MedalPlayPts = 2;
+        }
+
+        else if ((resultsA.netScorePlayer1 + resultsB.netScorePlayer1) < (resultsA.netScorePlayer2 + resultsB.netScorePlayer2))
         {
             Team1MedalPlayPts = 2;
         }
@@ -698,6 +733,10 @@ public static class Scoring
    
     private static bool WasPlayerSubbing(int playerID, int teamID, Dictionary<int, int> subs, Dictionary<int, Team> teams)
     {
+        if(teamID == 65 && playerID==256)
+        {
+            return false;
+        }
         if(subs.Values.Contains(playerID))
         {
             return teams[teamID].Golfer3ID != playerID && teams[teamID].Golfer2ID != playerID  && teams[teamID].Golfer1ID != playerID; 
@@ -722,7 +761,23 @@ public static class Scoring
         return results;
     }
 
-	
+
+    private static MatchupResults AdjustResultsForNoShows(MatchupResults results, int player1Id, int player2Id)
+    {
+        if (player1Id == 0 && results.totalPtsPlayer1 > 2)
+        {
+            results.totalPtsPlayer1 = 2;
+        }
+
+        if (player2Id == 0 && results.totalPtsPlayer2 > 2)
+        {
+            results.totalPtsPlayer2 = 2;
+        }
+
+        return results;
+    }
+
+
     public static MatchupResults GetMatchupResults(List<byte> player1Scores, List<byte> player2Scores, int player1Handicap, int player2Handicap, CourseInfo courseInfo)
     {
         MatchupResults retVal = new MatchupResults();
@@ -762,7 +817,7 @@ public static class Scoring
 
             //retVal.netScorePlayer1 += player1Net;
             //retVal.netScorePlayer2 += player2Net;
-
+         
             if (player1Net < player2Net)
             {
                 retVal.totalPtsPlayer1 += 1;
@@ -918,8 +973,38 @@ public static class Scoring
     public static void GetGolferIDs(int teamID, int LeagueEventID, Dictionary<int, int> subs, Dictionary<int, int> handicaps,  Dictionary<int, List<byte>> scores, out int A_PlayerID, out int B_PlayerID)
     {
         Dictionary<int, string> golfers = DatabaseFunctions.GetGolfers(teamID);
+
+        if(teamID == 85)
+        {
+            golfers.Remove(299);
+        }
+
+        //if(golfers.Count > 2)
+        //{
+        //    int keyToRemove = 0;
+        //    foreach(int GolferID in golfers.Keys)
+        //    {
+        //        if(subs.ContainsKey(GolferID))
+        //        {
+        //            keyToRemove = GolferID;
+        //        }
+        //    }
+        //    if(keyToRemove == 0)
+        //    {
+        //        foreach (int GolferID in golfers.Keys)
+        //        {
+        //            if (!scores.ContainsKey(GolferID))
+        //            {
+        //                keyToRemove = GolferID;
+        //            }
+        //        }
+        //    }
+        //    golfers.Remove(keyToRemove);
+        //}
+
         int golferID1 = golfers.Keys.ToList()[0];
         int golferID2 = golfers.Keys.ToList()[1];
+        
 
         if (subs.ContainsKey(golferID1))
         {
@@ -1040,7 +1125,7 @@ public static class Scoring
             if (golferID != 0)
             {
                 decimal golferAdjustedHandicap = handicaps[golferID];
-                golferAdjustedHandicap = golferAdjustedHandicap * (decimal).6;
+                golferAdjustedHandicap = golferAdjustedHandicap * (decimal).7;
 
                 foreach (int holeIndex in HolesToAdjust)
                 {

@@ -42,6 +42,27 @@ public class EventInfo
     public string SeasonName { get; set; }
 }
 
+public class Announcement
+{
+    public string Content;
+    public string Title;
+    public DateTime Created;
+    public DateTime LastUpdated;
+    public int LeagueId;
+    public int SeasonId;
+}
+
+public class MoneyWon
+{
+    public int GolferId;
+    public int LeagueId;
+    public int SeasonId;
+    public int? EventId;
+    public decimal Amount;
+    public string Description;        
+}
+
+
 public class Season
 {
     public int SeasonID { get; set; }
@@ -402,6 +423,19 @@ public static class DatabaseFunctions
         return retVal;
     }
 
+    public static List<string> GetCommissionerIds(int LeagueId)
+    {
+        List<string> retVal = new List<string>();
+        List<EqualsCondition> conditions = new List<EqualsCondition>();
+        conditions.Add(new EqualsCondition("LeagueId", LeagueId.ToString()));
+        List<Row> result = queryWithEqualsConditions("Commisioners", conditions);
+        foreach (Row row in result)
+        {
+            retVal.Add((string)row.columnNameValuePairs["LoginGUID"].ToString());
+        }
+        return retVal;
+    }
+
     public static int GetLeagueIDFromLoggedInUserID(string userGUID)
     {
         int retVal;
@@ -732,8 +766,13 @@ public static class DatabaseFunctions
         {
             retVal.Add("SubPtsLimit", "5");
             retVal.Add("ESCMaxOverPar", "4");
-            retVal.Add("MaxHandicap", "18");
+            retVal.Add("MaxHandicap", "21");
             retVal.Add("UseCurrentRoundForHandicap", "false");
+            var seasonID = DatabaseFunctions.GetCurrentSeasonID(LeagueID.ToString());
+            if(seasonID > 17)
+            {
+                retVal.Add("NewScoring", "true");
+            }        
         }
         return retVal;
     }
@@ -1253,6 +1292,88 @@ public static class DatabaseFunctions
         return retVal;
     }
 
+    public static List<Announcement> GetAnnouncements(int LeagueId)
+    {
+        List<Announcement> retVal = new List<Announcement>();
+
+        List<Row> result = queryWithWhereCondition("Announcements", "LeagueID = '" + LeagueId + "';");
+
+        foreach (Row row in result)
+        {
+            Announcement announcement = new Announcement();
+            announcement.SeasonId = (int)row.columnNameValuePairs["SeasonId"];
+            announcement.LeagueId = LeagueId;
+            announcement.Content = (string)row.columnNameValuePairs["AnnouncementContent"];
+            announcement.Title = (string)row.columnNameValuePairs["Title"];
+            announcement.Created = ((DateTime)row.columnNameValuePairs["Created"]);
+            announcement.LastUpdated = ((DateTime)row.columnNameValuePairs["LastUpdated"]);
+            retVal.Add(announcement);
+        }
+
+        return retVal;
+    }
+
+    public static void AddAnnouncement(Announcement announcement)
+    {
+        Dictionary<string, string> row = new Dictionary<string, string>();
+        row.Add("AnnouncementContent", announcement.Content);
+        row.Add("Created", System.DateTime.Now.ToString());
+        row.Add("LastUpdated", System.DateTime.Now.ToString());
+        row.Add("LeagueId", announcement.LeagueId.ToString());
+        row.Add("SeasonId", announcement.SeasonId.ToString());
+        row.Add("Title", announcement.Title);
+
+        insertRow("Announcements", row);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="LeagueID"></param>
+    /// <param name="currentSeasonID">Pass 0 to get events from All Seasons</param>
+    /// <returns></returns>
+    public static Dictionary<int, EventInfo> GetEventsWithScoresPosted(int LeagueID, int currentSeasonID)
+    {
+        Dictionary<int, EventInfo> retVal = new Dictionary<int, EventInfo>();
+
+        List<EqualsCondition> conditions = new List<EqualsCondition>();
+        conditions.Add(new EqualsCondition("LeagueID", LeagueID.ToString()));
+        if (currentSeasonID != 0)
+        {
+            conditions.Add(new EqualsCondition("SeasonID", currentSeasonID.ToString()));
+        }
+        List<Row> leagueEvents = queryWithEqualsConditions("LeagueEvents", conditions);
+
+
+        foreach (Row dbEvent in leagueEvents)
+        {
+            int LeagueEventID = (int)dbEvent.columnNameValuePairs["LeagueEventID"];
+
+            List<EqualsCondition> conditions2 = new List<EqualsCondition>();
+            conditions2.Add(new EqualsCondition("LeagueEventID", LeagueEventID.ToString()));
+            List<Row> scores = queryWithEqualsConditions("Scores", conditions2);
+
+            if (dbEvent.columnNameValuePairs["Date"] != DBNull.Value && scores != null && scores.Count > 0)
+            {
+                DateTime date = (DateTime)dbEvent.columnNameValuePairs["Date"];
+               
+                    EventInfo newEvent = new EventInfo();
+                    newEvent.Date = date.ToString();
+                    if (dbEvent.columnNameValuePairs["CourseID"] != DBNull.Value)
+                    {
+                        int courseID = (int)dbEvent.columnNameValuePairs["CourseID"];
+                        newEvent.CourseName = GetCourseName(courseID);
+                    }
+
+                    newEvent.EventName = (string)dbEvent.columnNameValuePairs["EventName"];
+                    retVal.Add(LeagueEventID, newEvent);
+                
+            }
+        }
+
+        return retVal;
+    }
+
     public static EventInfo GetNextEvent(string LeagueID)
     {
         EventInfo eventInfo = new EventInfo();
@@ -1327,54 +1448,7 @@ public static class DatabaseFunctions
         return (DateTime)leagueEvents[0].columnNameValuePairs["Date"];
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="LeagueID"></param>
-    /// <param name="currentSeasonID">Pass 0 to get events from All Seasons</param>
-    /// <returns></returns>
-    public static Dictionary<int, EventInfo> GetEventsWithScoresPosted(int LeagueID, int currentSeasonID)
-    {
-        Dictionary<int, EventInfo> retVal = new Dictionary<int,EventInfo>();
-       
-        List<EqualsCondition> conditions = new List<EqualsCondition>();
-        conditions.Add(new EqualsCondition("LeagueID", LeagueID.ToString()));
-        if (currentSeasonID != 0)
-        {
-            conditions.Add(new EqualsCondition("SeasonID", currentSeasonID.ToString()));
-        } 
-        List<Row> leagueEvents = queryWithEqualsConditions("LeagueEvents", conditions);
-
-
-        foreach (Row dbEvent in leagueEvents)
-        {
-            int LeagueEventID = (int)dbEvent.columnNameValuePairs["LeagueEventID"];
-
-            List<EqualsCondition> conditions2 = new List<EqualsCondition>();
-            conditions2.Add(new EqualsCondition("LeagueEventID", LeagueEventID.ToString()));
-            List<Row> scores = queryWithEqualsConditions("Scores", conditions2);
-
-            if (dbEvent.columnNameValuePairs["Date"] != DBNull.Value && scores!= null && scores.Count > 0)
-            {
-                DateTime date = (DateTime)dbEvent.columnNameValuePairs["Date"];
-                if (date < DateTime.Now)
-                {
-                    EventInfo newEvent = new EventInfo();
-                    newEvent.Date = date.ToString();
-                    if (dbEvent.columnNameValuePairs["CourseID"] != DBNull.Value)
-                    {
-                        int courseID = (int)dbEvent.columnNameValuePairs["CourseID"];
-                        newEvent.CourseName = GetCourseName(courseID);
-                    }
-                    
-                    newEvent.EventName = (string)dbEvent.columnNameValuePairs["EventName"];
-                    retVal.Add(LeagueEventID, newEvent);
-                }
-            }
-        }
-
-        return retVal;
-    }
+    
 
     public static EventsAndGolfers GetEventsAndPlayers(int LeagueID, int currentSeasonID)
     {
@@ -1592,8 +1666,9 @@ public static class DatabaseFunctions
         {
             command.ExecuteNonQuery();
         }
-        catch 
+        catch (Exception ex)
         {
+            throw ex;
             //may want to comment this out in case the log file gets too big.
             //writeToLogFile("Exception caught", "Inserting Row with SQL = " + sqlString, e.Message);
         }
